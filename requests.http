@@ -1,0 +1,27 @@
+### Estado del servicio
+GET http://localhost:3000/api/health
+
+###
+
+### Todos los cursos
+GET http://localhost:3000/api/courses
+
+###
+
+### Cursos filtrados por nivel
+GET http://localhost:3000/api/courses?level=intermediate
+
+###
+
+### Cursos filtrados por nivel inválido (devuelve 400)
+GET http://localhost:3000/api/courses?level=expert
+
+###
+
+### Detalle de un estudiante con sus inscripciones
+GET http://localhost:3000/api/students/1
+
+###
+
+### Estudiante que no existe (devuelve 404)
+GET http://localhost:3000/api/students/999
