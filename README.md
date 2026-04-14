@@ -2,18 +2,45 @@
 
 Starter backend para una mentoría práctica de GitHub Copilot en VS Code.
 
-Este repositorio deja lista la base técnica de un proyecto realista pero chico: API en Node.js + TypeScript + Express, base SQLite local y datos de ejemplo sobre cursos, estudiantes e inscripciones. La integración con instrucciones, skills y MCP se hace después, durante la práctica, en la computadora de cada participante.
-
-## Alcance de esta versión inicial
-
-- Incluye backend funcionando, esquema, seeds y tests.
-- No incluye archivos de Copilot, skills, prompts ni configuración MCP.
-- Deja un dominio simple y suficiente para que después puedan crear herramientas de IA sobre una base estable.
+Este repositorio deja lista la base técnica: API en Node.js + TypeScript + Express, base SQLite local y datos de ejemplo sobre cursos, estudiantes e inscripciones.
 
 ## Requisitos
 
 - Node.js 20 o superior
 - npm
+
+## Modelo de dominio
+
+```mermaid
+classDiagram
+	class Course {
+		+id: number
+		+code: string
+		+title: string
+		+category: string
+		+level: beginner | intermediate | advanced
+		+maxSeats: number
+	}
+
+	class Student {
+		+id: number
+		+firstName: string
+		+lastName: string
+		+email: string
+		+active: boolean
+	}
+
+	class Enrollment {
+		+id: number
+		+studentId: number
+		+courseId: number
+		+status: active | completed | dropped
+		+enrolledAt: date
+	}
+
+	Student "1" --> "0..*" Enrollment : has
+	Course "1" --> "0..*" Enrollment : receives
+```
 
 ## Puesta en marcha
 
@@ -59,14 +86,3 @@ Con eso podés probar el servicio, los filtros y algunos casos de error sin sali
 - [src/routes/students.ts](src/routes/students.ts): endpoint de estudiantes.
 - [src/db/setup.ts](src/db/setup.ts): inicialización y carga del archivo SQLite.
 - [src/db/client.ts](src/db/client.ts): helpers de lectura SQL.
-
-## Próxima fase de la mentoría
-
-Con este starter funcionando, la siguiente etapa es que cada participante haga en su propia copia local lo siguiente:
-
-1. Crear al menos una instruction de workspace.
-2. Crear una skill para una tarea puntual.
-3. Integrar un MCP que consulte la base.
-4. Restringir el MCP para que no pueda escribir ni borrar datos.
-
-Ese trabajo no está precreado en este repo a propósito.
