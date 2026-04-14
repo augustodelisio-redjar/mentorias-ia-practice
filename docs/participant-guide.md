@@ -79,16 +79,10 @@ Los requests disponibles cubren:
 
 ## Generar instruction de workspace
 
-Ruta recomendada:
-
-1. Abrí Chat.
-2. Tocá el engranaje para abrir Chat Customizations.
-3. Entrá en Instructions.
-4. Elegí Generate Instructions -> New Instructions (Workspace).
-5. Pegá este prompt exacto:
+Pegá el siguiente prompt en el chat de Copilot y asegurate de que la etiqueta **/create-instruction** sea leída correctamente:
 
 ```text
-Create a workspace instruction for this repository.
+/create-instruction Create a workspace instruction for this repository.
 
 Requirements:
 1) Before answering any technical question, always include a section titled "Supuestos que estoy haciendo" and list explicit assumptions about domain, schema, or context.
@@ -100,7 +94,14 @@ Output:
 - Keep it short, clear, and enforceable.
 ```
 
-Cómo validar que funciona:
+También es posible crer instrucciones mediante una interfaz
+1. Abrí Chat.
+2. Tocá el engranaje para abrir Chat Customizations.
+3. Entrá en Instructions.
+4. Elegí Generate Instructions -> New Instructions (Workspace).
+5. Pegá este prompt exacto:
+
+#### Cómo validar que funciona:
 
 1. En el chat, pedí: "Quiero una query para estudiantes con más de una inscripción activa".
 2. Revisá que aparezca la sección "Supuestos que estoy haciendo".
@@ -114,31 +115,10 @@ Objetivo de la skill:
 - El archivo debe tener un nombre tipo código, único e identificable (por ejemplo: `chg-20260414-153045-auth-fix.md`).
 - El contenido debe incluir fecha, resumen de cambios y detalles técnicos relevantes.
 
-Comportamiento esperado de la skill:
-
-1. Al detectar una solicitud de cambios de código, proponer y crear un archivo `.md` de documentación asociado.
-2. Usar una convención de nombre única basada en timestamp y tema corto.
-3. Incluir fecha/hora del cambio en encabezado.
-4. Registrar qué se cambió, por qué, impacto esperado y riesgos conocidos.
-5. Incluir al menos una tabla de resumen (archivos afectados, tipo de cambio, estado).
-6. Incluir ejemplos antes/después cuando aplique.
-7. Incluir al menos un diagrama Mermaid (flujo, secuencia o arquitectura del cambio).
-
-Estructura sugerida del documento generado por la skill:
-
-- Título del cambio
-- Fecha y código único
-- Contexto
-- Cambios implementados
-- Tabla de archivos/modificaciones
-- Ejemplos relevantes
-- Diagrama Mermaid
-- Riesgos y pendientes
-
-Prompt sugerido para crear la skill en Workspace:
+Pegá el siguiente Prompt en el chat de Copilot y asegurate de que la etiqueta **/create-skill** sea leída correctamente:
 
 ```text
-Create a workspace skill named change-doc-writer.
+/create-skill Create a workspace skill named change-doc-writer.
 
 Purpose:
 Automatically generate a Markdown change document whenever code changes are requested.
@@ -177,6 +157,18 @@ Las dependencias necesarias ya están en `package.json`. Si no las tenés, insta
 npm install --save-dev @modelcontextprotocol/sdk sql.js zod
 ```
 
+Además, agrega este script en `package.json`:
+
+```json
+{
+  "scripts": {
+    "mcp:start": "tsx mcp/server.ts"
+  }
+}
+```
+
+Si no está, agregalo antes de continuar.
+
 ### Paso 2: Crear estructura de archivos para el MCP
 
 1. Creá la carpeta `mcp/policies` si no existe:
@@ -186,6 +178,8 @@ npm install --save-dev @modelcontextprotocol/sdk sql.js zod
    ```
 
 2. Creá el archivo `mcp/policies/read-only.ts` (politica de solo lectura):
+
+  	Este archivo define la capa de seguridad SQL: valida que solo se permitan consultas de lectura antes de ejecutar cualquier query.
 
    ```typescript
    const FORBIDDEN_SQL_PATTERN =
@@ -243,6 +237,8 @@ npm install --save-dev @modelcontextprotocol/sdk sql.js zod
    ```
 
 3. Creá el archivo `mcp/server.ts` (servidor MCP principal):
+
+  	Este archivo levanta el servidor MCP, registra las tools (`list_tables`, `describe_table`, `run_select_query`) y conecta Chat con la base local.
 
    ```typescript
    import fs from "node:fs";
@@ -428,27 +424,14 @@ npm install --save-dev @modelcontextprotocol/sdk sql.js zod
    }
    ```
 
-### Paso 3: Levantar el servidor MCP en un terminal separado
-
-**Importante:** Mantené tu terminal de desarrollo (`npm run dev`) abierta en otro tab o ventana. Ahora:
-
-1. Abrí **un nuevo terminal** (no cierres el anterior).
-2. Ejecutá:
-   ```bash
-   npm run mcp:start
-   ```
-3. Deberías ver:
-   ```
-   MCP SQLite server running on stdio
-   ```
-   El servidor está listo. Dejalo corriendo mientras usas Chat.
-
-### Paso 4: Conectar el MCP desde VS Code Chat Customizations
+### Paso 3: Conectar el MCP desde VS Code Chat Customizations
 
 1. Abrí Chat (Ctrl+Shift+I).
 2. Hacé clic en el **engranaje ⚙️** para abrir Chat Customizations.
 3. Entrá en **Chat Customizations → MCP Servers -> Add Server**.
-4. Se abrirán opciones en la barra principal de búsqueda. Elegí la opción **Command (stdio)**, ingresá el nombre **mentoria-sqlite-local** y seguí los pasos. Asegurate que el archivo quede así:
+4. Se abrirán opciones en la barra principal de búsqueda. Elegí la opción **Command (stdio)**, ingresá el nombre **mentoria-sqlite-local** y seguí los pasos.
+
+	**Nota:** No importa qué Id le pusiste al crearlo, sólo copia y pega el siguiente código para que tu archivo `mcp.json` quede así:
 
    ```json
    {
@@ -471,6 +454,19 @@ npm install --save-dev @modelcontextprotocol/sdk sql.js zod
 
 5. Guardá la configuración.
 6. Cerrá y reabrí Chat para recargar la conexión.
+
+### Paso 4: Levantar el servidor MCP en un terminal separado
+
+1. Abrí **un nuevo terminal** (no cierres el anterior).
+2. Ejecutá:
+  ```bash
+  npm run mcp:start
+  ```
+3. Deberías ver:
+  ```
+  MCP SQLite server running on stdio
+  ```
+  El servidor está listo. Dejalo corriendo mientras usas Chat.
 
 ### Paso 5: Pruebas básicas del MCP
 
@@ -500,7 +496,7 @@ Usá el MCP para darme los estudiantes con más de una inscripción activa en 20
 
 Esperado: Copilot invoca `run_select_query` con un SQL que hace JOIN entre `students` y `enrollments`, filtra status="active" en 2026, agrupa por estudiante y cuenta inscripciones. Resultado debe incluir al menos a Elena Suarez con 2 inscripciones activas.
 
-**Ejemplo de salida esperada:**
+**Ejemplo de salida esperada (en formato tabla):**
 
 ```json
 {
