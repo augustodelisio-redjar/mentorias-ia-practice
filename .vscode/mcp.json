@@ -1,0 +1,11 @@
+{
+	"servers": {
+		"mentoria-sqlite-local": {
+			"type": "stdio",
+			"command": "npm",
+			"args": ["run", "mcp:start"],
+			"cwd": "${workspaceFolder}"
+		}
+	},
+	"inputs": []
+}
